@@ -146,7 +146,7 @@ func (quiz *Quiz) performQuiz() {
 			quiz.IncrementCorrectAnsCount()
 		}
 	}
-
+	quiz.timer.event <- "SOLVED"
 }
 
 func main() {
