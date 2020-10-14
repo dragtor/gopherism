@@ -27,11 +27,10 @@ type timer struct {
 	event     chan string
 }
 
-
 func NewTimer(timeLimit int) *timer {
 	return &timer{
 		timeLimit: timeLimit,
-        event : make(chan string,0),
+		event:     make(chan string, 0),
 	}
 }
 
@@ -105,48 +104,48 @@ func (quiz *Quiz) performQuiz() {
 	f, err := os.Open(*path)
 	check(err)
 	csvReader := csv.NewReader(f)
-		for {
-			// Read csv line by line
-			record, err := csvReader.Read()
-			if err == io.EOF {
-				break
-			}
-			check(err)
-			// validate csv record
-			isvalid := validateCSV(record)
-			if !isvalid {
-				log.Println("Err: invalid record")
-				continue
-			}
-			quesStr := record[0]
-			expectedAnsInt, err := strconv.ParseInt(record[1], 10, 64)
-			if err != nil {
-				log.Println("Err: invalid expected result")
-				continue
-			}
-			quiz.IncrementQuestionCount()
-			fmt.Printf("%s : ", quesStr)
-			// take input from user
-			ioreader := bufio.NewReader(os.Stdin)
-			data, err := ioreader.ReadString('\n')
-			if err != nil {
-				panic(err)
-			}
-			trimmedInput := strings.TrimSpace(data)
-			if trimmedInput == "" {
-				continue
-			}
-			userInput, err := strconv.Atoi(trimmedInput)
-			if err != nil {
-				log.Println("Err: invalid user input ")
-				continue
-			}
-			// equate user input to exepected answer
-			if userInput == int(expectedAnsInt) {
-				//log.Println("incrementting correct count")
-				quiz.IncrementCorrectAnsCount()
-			}
+	for {
+		// Read csv line by line
+		record, err := csvReader.Read()
+		if err == io.EOF {
+			break
 		}
+		check(err)
+		// validate csv record
+		isvalid := validateCSV(record)
+		if !isvalid {
+			log.Println("Err: invalid record")
+			continue
+		}
+		quesStr := record[0]
+		expectedAnsInt, err := strconv.ParseInt(record[1], 10, 64)
+		if err != nil {
+			log.Println("Err: invalid expected result")
+			continue
+		}
+		quiz.IncrementQuestionCount()
+		fmt.Printf("%s : ", quesStr)
+		// take input from user
+		ioreader := bufio.NewReader(os.Stdin)
+		data, err := ioreader.ReadString('\n')
+		if err != nil {
+			panic(err)
+		}
+		trimmedInput := strings.TrimSpace(data)
+		if trimmedInput == "" {
+			continue
+		}
+		userInput, err := strconv.Atoi(trimmedInput)
+		if err != nil {
+			log.Println("Err: invalid user input ")
+			continue
+		}
+		// equate user input to exepected answer
+		if userInput == int(expectedAnsInt) {
+			//log.Println("incrementting correct count")
+			quiz.IncrementCorrectAnsCount()
+		}
+	}
 
 }
 
@@ -160,16 +159,16 @@ func main() {
 			reader := bufio.NewReader(os.Stdin)
 			userResponse, err := reader.ReadString('\n')
 			if err != nil {
-                panic(err)
+				panic(err)
 				continue
 			}
-			if strings.ToLower(strings.TrimSpace(userResponse)) == "y"{
+			if strings.ToLower(strings.TrimSpace(userResponse)) == "y" {
 				go timer.stopwatch()
 				break
 			}
 		}
 	}
-    go quiz.performQuiz()
+	go quiz.performQuiz()
 	<-quiz.timer.event
 	fmt.Printf("\ntotal number of questions : %d \ntotal invalid answers : %d \n", quiz.questionCount, quiz.questionCount-quiz.correctAnswersCount)
 }
