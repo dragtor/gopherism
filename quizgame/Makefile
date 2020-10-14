@@ -4,9 +4,9 @@ test:
 	go test ./...
 
 formatter: 
-	go fmt cmt/main.go
+	go fmt cmd/main.go
 	
-build: clean  test
+build: formatter clean  test
 	go build -o bin/quiz cmd/main.go
 
 clean: 
