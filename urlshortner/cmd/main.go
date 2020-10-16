@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dragtor/gopherism/urlshortner/pkg"
 	"net/http"
+	"os"
 )
 
 func mapHandler(pathToUrls map[string]string, mux *http.ServeMux) http.HandlerFunc {
@@ -24,8 +25,34 @@ var (
 )
 
 func init() {
-	enableYamlInput = flag.Bool("-ep", false, "Enable path to yaml")
-	path = flag.String("-p", "../samples/redirect.yaml", "path location")
+	enableYamlInput = flag.Bool("ep", false, "Enable path to yaml")
+	path = flag.String("p", "samples/redirection.yaml", "path location")
+	flag.Parse()
+}
+
+func readRedirectionYaml(path string) ([]byte, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		panic(err)
+		return nil, err
+	}
+	defer file.Close()
+	fileinfo, err := file.Stat()
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+
+	}
+	filesize := fileinfo.Size()
+	buffer := make([]byte, filesize)
+
+	_, err = file.Read(buffer)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	return buffer, nil
+
 }
 
 func handlerLogic(method string, mux *http.ServeMux) http.HandlerFunc {
@@ -39,6 +66,16 @@ func handlerLogic(method string, mux *http.ServeMux) http.HandlerFunc {
 		return handler
 
 	case "YAML":
+		yaml, err := readRedirectionYaml(*path)
+		if err != nil {
+			panic(err)
+		}
+		yamlHandler, err := pkg.YAMLHandler([]byte(yaml), mux)
+		if err != nil {
+			panic(err)
+		}
+		return yamlHandler
+	case "DB":
 		break
 	}
 	return nil
@@ -54,31 +91,18 @@ func configSelectionPolicy() string {
 func main() {
 	mux := defaultMux()
 	policy := configSelectionPolicy()
-	fmt.Printf("selection policy %s\n", policy)
-	//var handler func(http.ResponseWriter, *http.Request)
+	fmt.Printf("selection policy %s  enableYamlInput : %v\n", policy, *enableYamlInput)
 	handler := handlerLogic(policy, mux)
-
-	/*
-		yaml := `
-			- path: /urlshort
-			  url: https://github.com/gophercises/urlshort
-			- path: /urlshort-final
-			  url: https://github.com/gophercises/urlshort/tree/solution
-			`
-		yamlHandler, err := pkg.YAMLHandler([]byte(yaml), mapHandler)
-		if err != nil {
-			panic(err)
-		}*/
 	fmt.Println("Starting the server on :8080")
 	http.ListenAndServe(":8080", handler)
 }
 
 func defaultMux() *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", hello)
+	mux.HandleFunc("/ping", hello)
 	return mux
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Hello, world!")
+	fmt.Fprintln(w, "Pong")
 }
