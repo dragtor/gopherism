@@ -6,18 +6,17 @@ import (
 	//"github.com/dragtor/gopherism/urlshortner/pkg"
 )
 
-//func mapHandler(pathToUrls map[string]string, mux *http.ServeMux) http.HandlerFunc {	return http.HandlerFunc(http.ReirectHandler("www.google.com", 200))
-
-//}
-
 func mapHandler(pathToUrls map[string]string, mux *http.ServeMux) http.HandlerFunc {
-	url := "https://www.facebook.com"
 	redirect := func(w http.ResponseWriter, r *http.Request) {
-		http.Redirect(w, r, url, 301)
+		if _, ok := pathToUrls[r.RequestURI]; !ok {
+			fmt.Fprint(w, "<html><head><title>Page Unregister</title></head><body>Redirection Not available</body></html>")
+			return
+		}
+		http.Redirect(w, r, pathToUrls[r.RequestURI], 301)
 	}
-
 	return redirect
 }
+
 func main() {
 	mux := defaultMux()
 
