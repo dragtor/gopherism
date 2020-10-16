@@ -1,22 +1,20 @@
-package urlshort
+package pkg
 
 import (
 	"net/http"
-    //"fmt"
+    "fmt"
 )
 
-// MapHandler will return an http.HandlerFunc (which also
-// implements http.Handler) that will attempt to map any
-// paths (keys in the map) to their corresponding URL (values
-// that each key in the map points to, in string format).
-// If the path is not provided in the map, then the fallback
-// http.Handler will be called instead.
-func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.HandlerFunc {
-    //handler := func(http.ResponseWriter, *http.Request) {
-    //}
-    //return handler
-    return nil
-}
+func MapHandler(pathToUrls map[string]string, mux *http.ServeMux) http.HandlerFunc {
+     redirect := func(w http.ResponseWriter, r *http.Request) {
+         if _, ok := pathToUrls[r.RequestURI]; !ok {
+             fmt.Fprint(w, "<html><head><title>Page Unregister</title></head><body>Redirection Not    available</body></html>")
+             return
+         }
+         http.Redirect(w, r, pathToUrls[r.RequestURI], 301)
+     }
+     return redirect
+ }
 
 // YAMLHandler will parse the provided YAML and then return
 // an http.HandlerFunc (which also implements http.Handler)
