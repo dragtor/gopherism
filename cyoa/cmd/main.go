@@ -1,7 +1,6 @@
 package main
 
 import (
-	//"bufio"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -36,7 +35,19 @@ func (a apiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, fmt.Sprintf("%s", "page not found"))
 		return
 	}
-	fmt.Fprintf(w, fmt.Sprintf("%v", a.Book[arc(urlList[2])]))
+	storyArc := a.Book[arc(urlList[2])]
+	title := fmt.Sprintf("<h3>%s</h3>\n", storyArc.Title)
+	paras := ""
+	for _, para := range storyArc.Story {
+		paras = paras + "<div>&nbsp;&nbsp;&nbsp;&nbsp;" + para + "</div>"
+	}
+	options := ""
+	for _, option := range storyArc.Options {
+		opt := fmt.Sprintf(`<div><a href="http://localhost:8080/api/%s">%s</a></div>`, option.Arc, option.Text)
+		options += opt
+	}
+
+	fmt.Fprintf(w, "<html><head><title></title></head><body>%s %s %s</body></html>", title, paras, options)
 
 }
 
