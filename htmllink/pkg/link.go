@@ -33,20 +33,33 @@ func GetLinks(htmltxt []byte) ([]Link, error) {
 	}
 	fmt.Printf("doc %#v", doc)
 	var link []Link
-	var f func(*html.Node)
-	f1 := func(n *html.Node) {
-		nList, err := n.ParseFragment(reader, n)
-		if err != nil {
-			panic(err)
+	var f1 func(*html.Node) string
+	f1 = func(n *html.Node) string {
+		//fmt.Printf("****nested anchor******\n%#v", n)
+		text := ""
+		if n.Type == html.TextNode {
+			text = strings.TrimSpace(n.Data)
 		}
-		fmt.Printf("%#v", nList)
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			if len(f1(c)) != 0 {
+				text = text + " " + f1(c)
+			}
+		}
+
+		return text
 	}
+	var f func(*html.Node)
 	f = func(n *html.Node) {
 		if n.Type == html.ElementNode && n.Data == "a" {
 			//fmt.Printf("\n%#v\n", n)
-			f1(n)
-			//l := Link{Href: "hello", Text: "text"}
-			//link = append(link, l)
+			for _, attr := range n.Attr {
+				if attr.Key == "href" {
+					key := attr.Val
+					text := f1(n)
+					l := Link{Href: key, Text: text}
+					link = append(link, l)
+				}
+			}
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			f(c)
