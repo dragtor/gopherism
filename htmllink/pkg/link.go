@@ -35,7 +35,6 @@ func GetLinks(htmltxt []byte) ([]Link, error) {
 	var link []Link
 	var f1 func(*html.Node) string
 	f1 = func(n *html.Node) string {
-		//fmt.Printf("****nested anchor******\n%#v", n)
 		text := ""
 		if n.Type == html.TextNode {
 			text = strings.TrimSpace(n.Data)
@@ -46,7 +45,7 @@ func GetLinks(htmltxt []byte) ([]Link, error) {
 			}
 		}
 
-		return text
+		return strings.TrimSpace(text)
 	}
 	var f func(*html.Node)
 	f = func(n *html.Node) {
