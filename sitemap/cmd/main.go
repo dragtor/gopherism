@@ -1,19 +1,21 @@
 package main
 
 import (
+	"encoding/xml"
 	"errors"
 	"flag"
 	"fmt"
 	"github.com/dragtor/gopherism/htmllink/pkg"
 	"io/ioutil"
-	//"log"
 	"net/http"
 	"net/url"
-	//"reflect"
 	"strings"
 )
 
-var domain *string
+var (
+	domain *string
+	output *string
+)
 
 var (
 	INVALID_DOMAIN   = errors.New("Invalid Domain")
@@ -28,6 +30,7 @@ func validateFlag() {
 
 func init() {
 	domain = flag.String("d", "", "Specify domain name")
+	output = flag.String("o", "./output.xml", "Output XML file path")
 }
 
 func IsPathInDomain(givenDomain, urlStr string) (string, error) {
@@ -36,7 +39,6 @@ func IsPathInDomain(givenDomain, urlStr string) (string, error) {
 	if err != nil {
 		return "", INVALID_DOMAIN
 	}
-	//fmt.Printf("givenurl : %+v, url : %+v\n", givenURL.Host, u.Host)
 	if u.Host != "" {
 		// if subdomain is different
 		splittedGivenURL := strings.Split(givenURL.Host, ".")
@@ -131,21 +133,43 @@ func GenerateSiteMapFromLocations(originDomain string, urlList []string) ([]stri
 	if unvisitedLocationCount == 0 {
 		return urlList, nil
 	}
-
 	return GenerateSiteMapFromLocations(originDomain, newUrlList)
 }
 
-/*
-type SiteMapRender struct {
-
+type XML struct {
+	XMLName xml.Name `xml:"xml"`
+	Urlset  UrlSet   `xml:"urlset"`
 }
 
-func WriteToYaml(sitemap []string ) error{
-    samplestruct := SiteMapRender{
+type UrlSet struct {
+	Xmlns string `xml:"xmlns,attr"`
+	Url   []URL  `xml:"url"`
+}
 
-    }
+type URL struct {
+	Loc string `xml:"loc"`
+}
 
-}*/
+func WriteToYaml(filepath string, sitemap []string) error {
+	var urlList []URL
+	for _, path := range sitemap {
+		urlData := URL{Loc: path}
+		urlList = append(urlList, urlData)
+	}
+
+	samplestruct := XML{
+		Urlset: UrlSet{
+			Xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9",
+			Url:   urlList,
+		},
+	}
+	xmldata, err := xml.MarshalIndent(samplestruct, "  ", "    ")
+	if err != nil {
+		panic(err)
+	}
+	err = ioutil.WriteFile(filepath, xmldata, 777)
+	return err
+}
 
 func main() {
 	flag.Parse()
@@ -155,10 +179,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("final output : %+v", sitemapList)
-	//err = WriteToYaml(sitemapList)
-	//if err != nil {
-	//    panic(err)
-	//}
+	err = WriteToYaml(*output, sitemapList)
+	if err != nil {
+		panic(err)
+	}
 
 }
