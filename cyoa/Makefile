@@ -4,7 +4,7 @@ test:
 	go test ./...
 
 formatter:
-	go fmt cmd/main.go
+	go fmt ./...
 
 build: formatter clean test
 	go build -o bin/cyoa cmd/main.go
