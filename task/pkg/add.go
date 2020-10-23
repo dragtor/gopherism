@@ -18,7 +18,7 @@ func Database(filepath string) *DB {
 
 func AddNewTask(args []string) error {
 	taskdesc := strings.Join(args, " ")
-	filepath := "my.db"
+	filepath := "/tmp/task.db"
 	db := Database(filepath)
 	task := Task{
 		Status:   TASK_STATUS_PENDING,
@@ -33,7 +33,7 @@ func AddNewTask(args []string) error {
 }
 
 func ListTask() error {
-	db := Database("my.db")
+	db := Database("/tmp/task.db")
 	taskList := []string{TASK_STATUS_PENDING}
 	tskList, err := db.AllTask(taskList)
 	if err != nil {
@@ -52,13 +52,13 @@ func MarkDone(args []string) error {
 		return nil
 	}
 	taskId, _ := strconv.ParseInt(args[0], 10, 64)
-	db := Database("my.db")
+	db := Database("/tmp/task.db")
 	err := db.MarkAsComplete(int(taskId))
 	return err
 }
 
 func (d *DB) MarkAsComplete(taskId int) error {
-	db := Database("my.db")
+	db := Database("/tmp/task.db")
 	tsk := db.Get(taskId)
 	tsk.Status = TASK_STATUS_COMPLETE
 	db.Update(tsk)
