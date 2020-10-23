@@ -35,14 +35,14 @@ var (
 		Use:   "do",
 		Short: "Mark a task on your TODO list as complete",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("DragTask TO-DO CLI manager v0.1 --HEAD")
+			pkg.MarkDone(args)
 		},
 	}
 	listCmd = &cobra.Command{
 		Use:   "list",
 		Short: "List all of your incomplete tasks",
 		Run: func(cmd *cobra.Command, args []string) {
-			fmt.Printf("DragTask TO-DO CLI manager v0.1 --HEAD")
+			pkg.ListTask()
 		},
 	}
 )
