@@ -1,35 +1,38 @@
 package deck
 
 import (
-    _ "fmt"
+	_ "fmt"
+	"math/rand"
+	"sort"
 )
 
 type Suite string
 
 const (
-	Spade   Suite = "Spade"
-	Heart   Suite = "Heart"
-	Diamond Suite = "Diamond"
-	Club    Suite = "Club"
+	Spade        Suite = "Spade"
+	Heart        Suite = "Heart"
+	Diamond      Suite = "Diamond"
+	Club         Suite = "Club"
+	SUITE_Jocker Suite = "Jocker"
 )
 
-type Rank string
+type Rank int
 
 const (
-	A Rank = "A"
-	One Rank = "1"
-	Two Rank = "2"
-	Three Rank = "3"
-	Four Rank = "4"
-	Five Rank = "5"
-	Six Rank = "6"
-	Seven Rank = "7"
-	Eight Rank = "8"
-	Nine Rank = "9"
-	Ten Rank = "10"
-	Jack Rank = "Jack"
-	Queen Rank = "Queen"
-	King Rank = "King"
+	A Rank = iota + 1
+	One
+	Two
+	Three
+	Four
+	Five
+	Six
+	Seven
+	Eight
+	Nine
+	Ten
+	Jack
+	Queen
+	King
 )
 
 type Card struct {
@@ -37,20 +40,92 @@ type Card struct {
 	Rank  Rank
 }
 
-type Cards []Card
-
-func New(countOfDeck int) []Card {
-	var cards []Card
-	for i := countOfDeck; i > 0; i-- {
-		deck := generateDeck()
-		cards = append(cards, deck...)
-	}
-	return cards
+type Cards struct {
+	Cards       []Card
+	CountOfDeck int
 }
 
-func generateDeck() []Card {
+func New(options ...func(*Cards) error) *Cards {
+	// default deck of size 1
+	c := Cards{Cards: deck(), CountOfDeck: 1}
+
+	for _, option := range options {
+		option(&c)
+	}
+	return &c
+}
+
+func Deck(count int) func(*Cards) error {
+	return func(c *Cards) error {
+		return c.addDeck(count)
+	}
+}
+
+func Jocker(count int) func(*Cards) error {
+	return func(c *Cards) error {
+		return c.addJocker(count)
+	}
+}
+
+func Sorted(c *Cards) error {
+	sort.Sort(c)
+	return nil
+}
+
+func (c *Cards) Len() int {
+	return len(c.Cards)
+}
+
+func (c *Cards) Swap(i, j int) {
+	c.Cards[i], c.Cards[j] = c.Cards[j], c.Cards[i]
+}
+
+func (c *Cards) Less(i, j int) bool {
+	c1 := c.Cards[i]
+	c2 := c.Cards[j]
+	f := func(suite Suite) int {
+		var value int
+		switch suite {
+		case Spade:
+			value = 1
+			break
+		case Heart:
+			value = 2
+			break
+		case Diamond:
+			value = 3
+			break
+		case Club:
+			value = 4
+			break
+		case SUITE_Jocker:
+			value = 5
+			break
+		}
+		return value
+	}
+	if f(c1.Suite) < f(c2.Suite) {
+		return true
+	}
+	if c1.Rank < c2.Rank {
+		return true
+	}
+	return false
+}
+
+func Shuffle(c *Cards) error {
+	c.Shuffle()
+	return nil
+}
+
+func (c *Cards) Shuffle() error {
+	rand.Shuffle(len(c.Cards), c.Swap)
+	return nil
+}
+
+func deck() []Card {
 	var deck []Card
-	suite := []Suite{Spade, Heart, Diamond , Club}
+	suite := []Suite{Spade, Heart, Diamond, Club}
 	rank := []Rank{A, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Jack, Queen, King}
 	for _, s := range suite {
 		for _, r := range rank {
@@ -61,3 +136,21 @@ func generateDeck() []Card {
 	return deck
 }
 
+func (c *Cards) addDeck(count int) error {
+	currentDeckSize := c.CountOfDeck
+	for i := currentDeckSize; i <= count; i++ {
+		newDeck := deck()
+		c.Cards = append(c.Cards, newDeck...)
+		c.CountOfDeck++
+	}
+	return nil
+
+}
+
+func (c *Cards) addJocker(count int) error {
+	for i := 0; i < count; i++ {
+		newCard := Card{Suite: SUITE_Jocker, Rank: Rank(-1)}
+		c.Cards = append(c.Cards, newCard)
+	}
+	return nil
+}

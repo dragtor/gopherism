@@ -1,5 +1,5 @@
 fmt: 
 	go fmt ./...
 
-test:
+test: fmt
 	go test ./...
