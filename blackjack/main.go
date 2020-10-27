@@ -248,7 +248,7 @@ func (g *Game) Winner() {
 			mindiff = diff
 		}
 	}
-    fmt.Printf("Winner is player %d, score is %d",playeridx,21-mindiff)
+	fmt.Printf("Winner is player %d, score is %d", playeridx, 21-mindiff)
 
 }
 func main() {
