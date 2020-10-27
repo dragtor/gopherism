@@ -1,7 +1,7 @@
 package deck
 
 import (
-	_ "fmt"
+	"fmt"
 	"math/rand"
 	"sort"
 )
