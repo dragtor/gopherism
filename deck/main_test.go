@@ -6,7 +6,7 @@ import (
 )
 
 func TestNewCards(t *testing.T) {
-	c := New(Deck(2), Jocker(3), Sorted, Shuffle)
+	c := New(Shuffle)
 	fmt.Printf("%+v", c.Cards)
 	if c != nil {
 		t.Errorf("%+v", c)

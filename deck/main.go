@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"sort"
+	"time"
 )
 
 type Suite string
@@ -56,7 +57,7 @@ var constLookup = map[Rank]string{
 }
 
 func (r Rank) String() string {
-	return fmt.Sprintf("[%s],",constLookup[r])
+	return fmt.Sprintf("[%s],", constLookup[r])
 }
 
 type Cards struct {
@@ -138,6 +139,7 @@ func Shuffle(c *Cards) error {
 }
 
 func (c *Cards) Shuffle() error {
+	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(c.Cards), c.Swap)
 	return nil
 }
