@@ -20,7 +20,6 @@ type Rank int
 
 const (
 	A Rank = iota + 1
-	One
 	Two
 	Three
 	Four
@@ -40,25 +39,24 @@ type Card struct {
 	Rank  Rank
 }
 
-var RankToString = map[Rank]string{
-	A:     "A",
-	One:   "1",
-	Two:   "2",
-	Three: "3",
-	Four:  "4",
-	Five:  "5",
-	Six:   "6",
-	Seven: "7",
-	Eight: "8",
-	Nine:  "9",
-	Ten:   "10",
-	Jack:  "J",
-	Queen: "Q",
-	King:  "K",
+var constLookup = map[Rank]string{
+	A:     `A`,
+	Two:   `2`,
+	Three: `3`,
+	Four:  `4`,
+	Five:  `5`,
+	Six:   `6`,
+	Seven: `7`,
+	Eight: `8`,
+	Nine:  `9`,
+	Ten:   `10`,
+	Jack:  `J`,
+	Queen: `Q`,
+	King:  `K`,
 }
 
-func (c *Card) String() string {
-	return fmt.Sprintf("[%s --> %s],", c.Suite, RankToString[c.Rank])
+func (r Rank) String() string {
+	return fmt.Sprintf("[%s],",constLookup[r])
 }
 
 type Cards struct {
