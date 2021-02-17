@@ -16,18 +16,18 @@ func renameFile(path, renameLogic func(path1 string) string) func(p string) stri
 func main() {
 	var a func(path string) string
 	a = func(originalPath string) string {
-		fmt.Printf("renameLogic1 : %s\n", originalPath)
+        pathToFile := filepath.Dir(originalPath)
+        fileNameBase := filepath.Base(originalPath)
+		fmt.Printf("renameLogic1 : %s\n", fileNameBase)
+
 		return originalPath
 	}
 	walkFn := func(path string, info os.FileInfo, err error) error {
 		fmt.Printf("%s %+v\n", path, info)
 		if !info.IsDir() {
-			newPath := a(path + "_test")
+			newPath := a(path+"test")
 			os.Rename(path, newPath)
 		}
-		//if err != nil {
-		//	panic(err)
-		//}
 		return nil
 	}
 	filepath.Walk("./samples", walkFn)

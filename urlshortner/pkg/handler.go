@@ -47,7 +47,6 @@ func parseYAML(yamldata []byte) (*Yaml, error){
     var yml Yaml
     err := yaml.Unmarshal(yamldata, &yml)
     if err != nil {
-        panic(err)
         return nil , nil 
     }
     return &yml, nil
